@@ -1,0 +1,46 @@
+{ "Employee" : {"type" : "entity",
+				"attr" : ["E#", "Name", "Salary", "Hobby"],
+				"relation" : ["Join","WorkFor"],
+				"key" : ["E#"],
+				"multiValued" : ["Hobby"]
+			    },
+  "Join" 	 : {"type" : "relationship",
+				"attr" : ["Position"],
+				"relation" : ["Employee","Department"],
+				"multi" : ["true", "false"]
+			    },
+ "Department" : {"type" : "entity",
+				"attr" : ["D#", "Dname"],
+				"relation"  :["Join"],
+				"key" : ["D#"]
+			    },			    
+  "WorkFor" :  {"type" : "relationship",
+				"relation" : ["Employee","Project"],
+				"multi" : ["true", "true"]
+			    },
+ "Project"  :  {"type" : "entity",
+				"attr" : ["J#", "Title", "Budget"],
+				"relation" : ["WorkFor", "SPJ"],
+				"key" : ["J#"]
+			    },
+  "SPJ" :      {"type" : "relationship",
+  				"attr" : ["Quantity"],
+				"relation" : ["Project","SP"],
+				"multi" : ["true", "true"]
+			    },
+  "SP" :  	   {"type" : "relationship",
+  				"attr" : ["Price"],
+				"relation" : ["SPJ","Supplier","Part"],
+				"multi" : ["true", "true", "true"]
+			    }
+ "Supplier"  : {"type" : "entity",
+				"attr" : ["S#", "Sname", "Address"],
+				"relation" : ["SP"],
+				"key" : ["S#"]
+			    },
+ "Part"   :    {"type" : "entity",
+				"attr" : ["P#", "Pname"],
+				"relation" : ["SP"],
+				"key" : ["P#"]
+			    }
+}
