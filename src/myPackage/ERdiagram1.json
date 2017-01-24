@@ -32,7 +32,7 @@
   				"attr" : ["Price"],
 				"relation" : ["SPJ","Supplier","Part"],
 				"multi" : ["true", "true", "true"]
-			    }
+			    },
  "Supplier"  : {"type" : "entity",
 				"attr" : ["S#", "Sname", "Address"],
 				"relation" : ["SP"],

@@ -12,6 +12,9 @@ public class Attribute extends Node{
 		this.isKey=isKey;
 		this.isMulti=isMulti;
 	}
+	public Attribute(String name) {
+		this.name=name;
+	}
 	public Boolean getIsKey() {
 		return isKey;
 	}

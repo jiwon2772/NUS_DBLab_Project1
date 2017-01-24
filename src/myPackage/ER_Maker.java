@@ -4,9 +4,64 @@ import java.util.ArrayList;
 
 import org.json.simple.*;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 public class ER_Maker {
 
-	public ArrayList<Node> ER = new ArrayList<Node>();
+	private ArrayList<Node> ER = new ArrayList<Node>();
+	private ArrayList<Attribute> attArr = new ArrayList<Attribute>();
+	private JSONObject json = null;
+
+	public ArrayList<Node> getER(String txt) {
+		JSONParser parser = new JSONParser();
+		try {
+			json = (JSONObject) parser.parse(txt);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		JSONArray nodeArr = (JSONArray) json.get("nodeDataArray");
+		JSONArray linkArr = (JSONArray) json.get("linkDataArray");
+		//JSONArray 
+
+		for (int i = 0; i < linkArr.size(); i++) {
+			//System.out.println(((JSONObject) (linkArr.get(i))).get("text"));
+			System.out.println((linkArr.get(i).toString()));
+		}
+
+		// first, make instance for entity node and relationship node
+		for (int i = 0; i < nodeArr.size(); i++) {
+
+			if (((JSONObject) nodeArr.get(i)).get("type").toString().compareTo("E") == 0) {
+				Entity temp = new Entity(((JSONObject) nodeArr.get(i)).get("text").toString());
+				temp.setKey(Integer.parseInt(((JSONObject)nodeArr.get(i)).get("key").toString()));
+				ER.add(temp);
+			} else if (((JSONObject) nodeArr.get(i)).get("type").toString().compareTo("R") == 0) {
+				Relationship temp = new Relationship(((JSONObject) nodeArr.get(i)).get("text").toString());
+				temp.setKey(Integer.parseInt(((JSONObject)nodeArr.get(i)).get("key").toString()));
+				ER.add(temp);
+			} else if (((JSONObject) nodeArr.get(i)).get("type").toString().compareTo("A") == 0){
+				Attribute temp = new Attribute(((JSONObject) nodeArr.get(i)).get("text").toString());
+				temp.setKey(Integer.parseInt(((JSONObject)nodeArr.get(i)).get("key").toString()));
+				attArr.add(temp);
+			}
+			else {
+				//exception
+			}
+		}
+		// linkData traverse for getting lot of information
+		for(int i = 0; i < linkArr.size(); i++) {
+			
+			
+		}
+		
+
+		return ER;
+	}
 
 	public ArrayList<Node> getER(org.json.simple.JSONObject obj) {
 
@@ -17,11 +72,11 @@ public class ER_Maker {
 			Object keyvalue = obj.get(keyStr);
 
 			// Print key and value
-			System.out.println("key: " + keyStr + " value: " + keyvalue);
+			// System.out.println("key: " + keyStr + " value: " + keyvalue);
 
 			// Whether it is entity type or relationship type.
 			JSONObject now = (JSONObject) keyvalue;
-			System.out.println(now.get("type"));
+			// System.out.println(now.get("type"));
 
 			if (now.get("type").toString().compareTo("entity") == 0) {
 				Entity temp = new Entity(keyStr);
@@ -49,50 +104,59 @@ public class ER_Maker {
 						break;
 					count++;
 				}
-				if(info.get("type").toString().compareTo("entity")==0)
-					(((Entity)temp).getArrayList()).add(ER.get(count));
-				else if(info.get("type").toString().compareTo("relationship")==0)
-					(((Relationship)temp).getArrayList()).add(ER.get(count));
+				if (info.get("type").toString().compareTo("entity") == 0)
+					(((Entity) temp).getArrayList()).add(ER.get(count));
+				else if (info.get("type").toString().compareTo("relationship") == 0)
+					(((Relationship) temp).getArrayList()).add(ER.get(count));
 			}
 			// add attributes
 			JSONArray attr_arr = (JSONArray) info.get("attr");
 			if (attr_arr != null) {
 				for (int j = 0; j < attr_arr.size(); j++) {
-					if(info.get("type").toString().compareTo("entity")==0)
-						(((Entity)temp).getArrayList()).add(new Attribute(attr_arr.get(j).toString(), false, false));
-					else if(info.get("type").toString().compareTo("relationship")==0)
-						(((Relationship)temp).getArrayList()).add(new Attribute(attr_arr.get(j).toString(), false, false));
+					if (info.get("type").toString().compareTo("entity") == 0)
+						(((Entity) temp).getArrayList()).add(new Attribute(attr_arr.get(j).toString(), false, false));
+					else if (info.get("type").toString().compareTo("relationship") == 0)
+						(((Relationship) temp).getArrayList())
+								.add(new Attribute(attr_arr.get(j).toString(), false, false));
 				}
 			}
 			// add info about key for Entity type
-			JSONArray key_arr = (JSONArray)info.get("key");
+			JSONArray key_arr = (JSONArray) info.get("key");
 			if (key_arr != null) {
-				for(int j = 0; j < key_arr.size(); j++) {
-					for(int k = 0; k < ((Entity)temp).getArrayList().size(); k++) {
-						if(((Entity)temp).getArrayList().get(k).name.compareTo(key_arr.get(j).toString())==0){
-							((Attribute)(((Entity)temp).getArrayList().get(k))).setIsKey(true);
-							//System.out.println("name : " + key_arr.get(j).toString() + "result : " + ((Attribute)temp.lists.get(k)).getIsKey() );
+				for (int j = 0; j < key_arr.size(); j++) {
+					for (int k = 0; k < ((Entity) temp).getArrayList().size(); k++) {
+						if (((Entity) temp).getArrayList().get(k).name.compareTo(key_arr.get(j).toString()) == 0) {
+							((Attribute) (((Entity) temp).getArrayList().get(k))).setIsKey(true);
+							// System.out.println("name : " +
+							// key_arr.get(j).toString() + "result : " +
+							// ((Attribute)temp.lists.get(k)).getIsKey() );
 							break;
 						}
 					}
 				}
 			}
-			// add info about whether it is one-to-one or one-to-many or many-to-many for relationship type
-			JSONArray multi_arr = (JSONArray)info.get("multi");
+			// add info about whether it is one-to-one or one-to-many or
+			// many-to-many for relationship type
+			JSONArray multi_arr = (JSONArray) info.get("multi");
 			if (multi_arr != null) {
-				for(int j = 0;j < multi_arr.size(); j++) {
-					((Relationship)temp).addList_Multi(j,(multi_arr.get(j).toString()));
+				for (int j = 0; j < multi_arr.size(); j++) {
+					((Relationship) temp).addList_Multi(j, (multi_arr.get(j).toString()));
 				}
-				//System.out.println(((Relationship)temp).getName() + " : " + ((Relationship)temp).getArrayListMulti().size());
+				// System.out.println(((Relationship)temp).getName() + " : " +
+				// ((Relationship)temp).getArrayListMulti().size());
 			}
-			// add info about whether it is multi-valued attribute or not for entity type
-			JSONArray multiV_arr = (JSONArray)info.get("multiValued");
+			// add info about whether it is multi-valued attribute or not for
+			// entity type
+			JSONArray multiV_arr = (JSONArray) info.get("multiValued");
 			if (multiV_arr != null) {
-				for(int j = 0; j < multiV_arr.size(); j++) {
-					for(int k = 0; k < ((Entity)temp).getArrayList().size(); k++) {
-						if(((Entity)temp).getArrayList().get(k).name.compareTo(multiV_arr.get(j).toString())==0){
-							((Attribute)(((Entity)temp).getArrayList().get(k))).setIsMulti(true);
-							//System.out.println("name : " + multiV_arr.get(j).toString() + "result : " + ((Attribute)(((Entity)temp).getArrayList().get(k))).getIsMulti() );
+				for (int j = 0; j < multiV_arr.size(); j++) {
+					for (int k = 0; k < ((Entity) temp).getArrayList().size(); k++) {
+						if (((Entity) temp).getArrayList().get(k).name.compareTo(multiV_arr.get(j).toString()) == 0) {
+							((Attribute) (((Entity) temp).getArrayList().get(k))).setIsMulti(true);
+							// System.out.println("name : " +
+							// multiV_arr.get(j).toString() + "result : " +
+							// ((Attribute)(((Entity)temp).getArrayList().get(k))).getIsMulti()
+							// );
 							break;
 						}
 					}
